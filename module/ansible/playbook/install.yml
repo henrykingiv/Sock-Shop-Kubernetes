@@ -1,0 +1,105 @@
+---
+  - name: Install k8s dependencies on master and worker nodes.
+    hosts: main-master, member-master, worker
+    remote_user: ec2-user
+    become: true
+    become_method : sudo
+    become_user: root
+    gather_facts: true
+    connection: ssh
+
+    tasks:
+     - name : update and upgrade ec2-user environment
+       shell: |
+                sudo yum update
+
+     - name : Add k8s repo to ec2-user
+       shell: |
+                sudo yum -y install curl yum-transport-https
+                curl -s https://packages.cloud.google.com/yum/doc/yum-key.gpg | sudo yum-key add -
+                echo "deb https://yum.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/yum/sources.list.d/kubernetes.list
+
+     - name: Install required packages before installing kubelet, kubectl and kubeadm
+       shell: |
+                sudo yum update
+                sudo yum -y install vim git curl wget kubelet kubeadm kubectl
+                sudo yum-mark hold kubelet kubeadm kubectl
+
+     - name : Disable swap and confirm that the setting is correct
+       shell: |
+                sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+                sudo swapoff -a
+                sudo mount -a
+                free -h
+    
+     - name : Enable Kernel modules
+       shell: |
+                sudo modprobe overlay
+                sudo modprobe br_netfilter
+
+     - name : Add some settings to sysctl
+       shell: |
+          sudo tee /etc/sysctl.d/kubernetes.conf<<EOF
+          net.bridge.bridge-nf-call-ip6tables = 1
+          net.bridge.bridge-nf-call-iptables = 1
+          net.ipv4.ip_forward = 1
+
+     - name : Reload sysctl
+       command: sudo sysctl --system
+
+     - name : Install docker container runtime
+       shell: |
+                sudo yum update -y
+                sudo yum install -y curl gnupg2 software-properties-common yum-transport-https ca-certificates
+                curl -fsSL https://download.docker.com/linux/ec2-user/gpg | sudo yum-key add -
+                sudo add-yum-repository "deb [arch=amd64] https://download.docker.com/linux/ec2-user $(lsb_release -cs) stable" -y
+                sudo yum update -y
+                sudo yum install -y containerd.io docker-ce docker-ce-cli
+
+     - name: Create directory
+       shell: sudo mkdir -p /etc/systemd/system/docker.service.d
+     - name: Add conf for containerd
+       shell: |
+          sudo tee /etc/docker/daemon.json <<EOF
+          {
+             "exec-opts": ["native.cgroupdriver=systemd"],
+             "log-driver": "json-file",
+             "log-opts": {
+             "max-size": "100m"
+             },
+            "storage-driver": "overlay2"
+          }
+          EOF
+
+     - name: Enable and start docker service
+       shell: |
+                sudo systemctl daemon-reload
+                sudo systemctl restart docker
+                sudo systemctl enable docker
+
+     - name: Install required packages before downloading cri-dockerd
+       shell: |
+                sudo yum update -y
+                sudo yum install git wget curl
+
+     - name: downlaod the latest binary package of cri-dockerd
+       shell: |
+                VER=$(curl -s https://api.github.com/repos/Mirantis/cri-dockerd/releases/latest|grep tag_name | cut -d '"' -f 4|sed 's/v//g')
+                wget https://github.com/Mirantis/cri-dockerd/releases/download/v${VER}/cri-dockerd-${VER}.amd64.tgz
+                tar xvf cri-dockerd-${VER}.amd64.tgz
+
+     - name: Move cri-dockerd binary package to /usr/local/bin directory
+       shell: sudo mv cri-dockerd/cri-dockerd /usr/local/bin/
+
+     - name: configure systemd units for cri-dockerd
+       shell: |
+                wget https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.service
+                wget https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.socket
+                sudo mv cri-docker.socket cri-docker.service /etc/systemd/system/
+                sudo sed -i -e 's,/usr/bin/cri-dockerd,/usr/local/bin/cri-dockerd,' /etc/systemd/system/cri-docker.service
+
+     - name: Start and enable the services
+       shell: |
+                sudo systemctl daemon-reload
+                sudo systemctl enable cri-docker.service
+                sudo systemctl enable --now cri-docker.socket
