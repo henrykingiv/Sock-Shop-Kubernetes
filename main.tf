@@ -2,28 +2,28 @@ locals {
   name = "sock-shop-henry"
 }
 data "aws_vpc" "vpc" {
-  id = ""
+  id = "vpc-0b02df0c01ff7dc09"
 }
 data "aws_subnet" "pubsub01" {
-  id = ""
+  id = "subnet-0f7a449660c97999e"
 }
 data "aws_subnet" "pubsub02" {
-  id = ""
+  id = "subnet-0d857dd9e634d1027"
 }
 data "aws_subnet" "pubsub03" {
-  id = ""
+  id = "subnet-046adbd371bc653c9"
 }
 data "aws_subnet" "prvtsub01" {
-  id = ""
+  id = "subnet-0a99ffcd80fc5048b"
 }
 data "aws_subnet" "prvtsub02" {
-  id = ""
+  id = "subnet-04379d6595d47642f"
 }
 data "aws_subnet" "prvtsub03" {
-  id = ""
+  id = "subnet-0364f272f0e6ce938"
 }
 data "aws_security_group" "k8s-sg" {
-  id = ""
+  id = "sg-07d6c8f6b67ae2ca6"
 }
 data "aws_acm_certificate" "amazon_issued" {
   domain      = "henrykingroyal.co"
@@ -69,7 +69,7 @@ module "ansible" {
   master3        = module.master-node.master_private_ip[2]
   worker1        = module.worker-node.worker_private_ip[0]
   worker2        = module.worker-node.worker_private_ip[1]
-  worker3        = module.worker-node.worker_private_ip[3]
+  worker3        = module.worker-node.worker_private_ip[2]
   tag-ansible    = "${local.name}-ansible"
   bastion_host   = module.bastion-host.bastion_ip
   vpc_id         = data.aws_vpc.vpc.id
@@ -94,7 +94,7 @@ module "master-node" {
   security-group = data.aws_security_group.k8s-sg.id
   instance_type  = "t3.medium"
   keyname        = module.keypair.public-key
-  subnet-id      = [data.aws_subnet.prvtsub01, data.aws_subnet.prvtsub02, data.aws_subnet.prvtsub03]
+  subnet-id      = [data.aws_subnet.prvtsub01.id, data.aws_subnet.prvtsub02.id, data.aws_subnet.prvtsub03.id]
   instance_name  = "${local.name}-master"
 }
 
@@ -104,13 +104,13 @@ module "worker-node" {
   security-group = data.aws_security_group.k8s-sg.id
   instance_type  = "t3.medium"
   keyname        = module.keypair.public-key
-  subnet-id      = [data.aws_subnet.prvtsub01, data.aws_subnet.prvtsub02, data.aws_subnet.prvtsub03]
+  subnet-id      = [data.aws_subnet.prvtsub01.id, data.aws_subnet.prvtsub02.id, data.aws_subnet.prvtsub03.id]
   instance_name  = "${local.name}-worker"
 }
 
 module "promethues" {
   source            = "./module/promethues"
-  subnets           = [data.aws_subnet.pubsub01.id, data.aws_subnet.pubsub01.id, data.aws_subnet.pubsub01.id]
+  subnets           = [data.aws_subnet.pubsub01.id, data.aws_subnet.pubsub02.id, data.aws_subnet.pubsub03.id]
   prome_sg          = data.aws_security_group.k8s-sg.id
   vpc_id            = data.aws_vpc.vpc.id
   cert_acm          = data.aws_acm_certificate.amazon_issued.arn
@@ -121,7 +121,7 @@ module "promethues" {
 
 module "grafana" {
   source              = "./module/grafana"
-  subnets             = [data.aws_subnet.pubsub01.id, data.aws_subnet.pubsub01.id, data.aws_subnet.pubsub01.id]
+  subnets             = [data.aws_subnet.pubsub01.id, data.aws_subnet.pubsub02.id, data.aws_subnet.pubsub03.id]
   grafana_sg          = data.aws_security_group.k8s-sg.id
   vpc_id              = data.aws_vpc.vpc.id
   cert_acm            = data.aws_acm_certificate.amazon_issued.arn
@@ -132,7 +132,7 @@ module "grafana" {
 
 module "prod-lb" {
   source           = "./module/prod-lb"
-  subnets          = [data.aws_subnet.pubsub01.id, data.aws_subnet.pubsub01.id, data.aws_subnet.pubsub01.id]
+  subnets          = [data.aws_subnet.pubsub01.id, data.aws_subnet.pubsub02.id, data.aws_subnet.pubsub03.id]
   prod_sg          = data.aws_security_group.k8s-sg.id
   vpc_id           = data.aws_vpc.vpc.id
   prod_cert_acm    = data.aws_acm_certificate.amazon_issued.arn
@@ -143,7 +143,7 @@ module "prod-lb" {
 
 module "stage-lb" {
   source            = "./module/stage-lb"
-  subnets           = [data.aws_subnet.pubsub01.id, data.aws_subnet.pubsub01.id, data.aws_subnet.pubsub01.id]
+  subnets           = [data.aws_subnet.pubsub01.id, data.aws_subnet.pubsub02.id, data.aws_subnet.pubsub03.id]
   stage_sg          = data.aws_security_group.k8s-sg.id
   vpc_id            = data.aws_vpc.vpc.id
   stage_cert_acm    = data.aws_acm_certificate.amazon_issued.arn

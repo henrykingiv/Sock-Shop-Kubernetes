@@ -1,8 +1,9 @@
 resource "aws_lb" "prod_lb" {
+  name = "prod-lb"
   load_balancer_type = "application"
   subnets = (var.subnets)
   security_groups = [var.prod_sg]
-  enable_deletion_protection = false
+  
   tags = {
     Name = "prod-lb"
   }

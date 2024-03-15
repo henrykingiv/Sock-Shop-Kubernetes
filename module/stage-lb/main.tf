@@ -1,8 +1,10 @@
 resource "aws_lb" "stage_lb" {
+  name = "stage-lb"
   load_balancer_type = "application"
-  subnets = (var.subnets)
+  subnets = var.subnets
   security_groups = [var.stage_sg]
-  enable_deletion_protection = false
+
+  
   tags = {
     Name = "stage-lb"
   }
