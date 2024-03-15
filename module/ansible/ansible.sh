@@ -38,14 +38,14 @@ sudo echo "${worker1} ansible_ssh_private_key_file=/home/ec2-user/.ssh/id_rsa" >
 sudo echo "${worker2} ansible_ssh_private_key_file=/home/ec2-user/.ssh/id_rsa" >> /etc/ansible/hosts
 sudo echo "${worker3} ansible_ssh_private_key_file=/home/ec2-user/.ssh/id_rsa" >> /etc/ansible/hosts
 
-sudo su -c "ansible-playbook /home/ec2-user/playbook/install.yml" ec2-user
-sudo su -c "ansible-playbook /home/ec2-user/playbook/keepalived.yml" ec2-user
-sudo su -c "ansible-playbook /home/ec2-user/playbook/main-master.yml" ec2-user
-sudo su -c "ansible-playbook /home/ec2-user/playbook/member-master.yml" ec2-user
-sudo su -c "ansible-playbook /home/ec2-user/playbook/worker.yml" ec2-user
-sudo su -c "ansible-playbook /home/ec2-user/playbook/kubectl.yml" ec2-user
-sudo su -c "ansible-playbook /home/ec2-user/playbook/stage.yml" ec2-user
-sudo su -c "ansible-playbook /home/ec2-user/playbook/prod.yml" ec2-user
-sudo su -c "ansible-playbook /home/ec2-user/playbook/monitoring.yml" ec2-user
+# sudo su -c "ansible-playbook /home/ec2-user/playbook/install.yml" ec2-user
+# sudo su -c "ansible-playbook /home/ec2-user/playbook/keepalived.yml" ec2-user
+# sudo su -c "ansible-playbook /home/ec2-user/playbook/main-master.yml" ec2-user
+# sudo su -c "ansible-playbook /home/ec2-user/playbook/member-master.yml" ec2-user
+# sudo su -c "ansible-playbook /home/ec2-user/playbook/worker.yml" ec2-user
+# sudo su -c "ansible-playbook /home/ec2-user/playbook/kubectl.yml" ec2-user
+# sudo su -c "ansible-playbook /home/ec2-user/playbook/stage.yml" ec2-user
+# sudo su -c "ansible-playbook /home/ec2-user/playbook/prod.yml" ec2-user
+# sudo su -c "ansible-playbook /home/ec2-user/playbook/monitoring.yml" ec2-user
 
 sudo hostnamectl set-hostname ansible
