@@ -7,7 +7,7 @@ resource "aws_instance" "ha-proxy-1" {
   user_data                   = templatefile("./module/ha-proxy/ha-proxy-1.sh", {
     master1 = var.master1
     master2 = var.master2
-    master2 = var.master3
+    master3 = var.master3
 
   })
 
@@ -25,7 +25,7 @@ resource "aws_instance" "ha-proxy-2" {
   user_data                   = templatefile("./module/ha-proxy/ha-proxy-2.sh", {
     master1 = var.master1
     master2 = var.master2
-    master2 = var.master3
+    master3 = var.master3
 
   })
 

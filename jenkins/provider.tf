@@ -3,6 +3,6 @@ locals {
 }
 
 provider "aws" {
-    profile = "LeadUser"
-    region = "eu-west-1"
+  profile = "LeadUser"
+  region  = "eu-west-1"
 }
