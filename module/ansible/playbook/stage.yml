@@ -1,0 +1,33 @@
+---
+ - hosts: haproxy1
+   become: true
+   
+   tasks:
+
+    - name: Checking if Application Repo exist on haproxy server
+      stat:
+        path: /home/ec2-user/US-Team-Sock-Shop-App-Repo
+      register: repo_exists 
+
+    - name: Cloning Application Repo
+      git:
+        repo: https://github.com/CloudHight/US-Team-Sock-Shop-App-Repo.git
+        dest: /home/ec2-user/US-Team-Sock-Shop-App-Repo
+      when: not repo_exists.stat.exists
+
+    - name: Updating Application Repo
+      shell:
+        cmd: git pull
+        chdir: /home/ubuntu/US-Team-Sock-Shop-App-Repo
+      when: repo_exists.stat.exists
+
+    - name: Deleting Previous Deployment to stage-shop
+      shell: sudo su -c "kubectl delete -f staging-complete.yaml" ec2-user
+      ignore_errors: true
+      args:
+        chdir: US-Team-Sock-Shop-App-Repo/deploy/kubernetes  
+
+    - name: Deploying Latest Features to stage-shop
+      shell: sudo su -c "kubectl apply -f staging-complete.yaml" ec2-user
+      args:
+        chdir: US-Team-Sock-Shop-App-Repo/deploy/kubernetes
