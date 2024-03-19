@@ -2,28 +2,28 @@ locals {
   name = "sock-shop-henry"
 }
 data "aws_vpc" "vpc" {
-  id = "vpc-0b02df0c01ff7dc09"
+  id = "vpc-0902bfb4a82802be2"
 }
 data "aws_subnet" "pubsub01" {
-  id = "subnet-0f7a449660c97999e"
+  id = "subnet-0d8048a57e3a271fc"
 }
 data "aws_subnet" "pubsub02" {
-  id = "subnet-0d857dd9e634d1027"
+  id = "subnet-07bb00e6508c4d685"
 }
 data "aws_subnet" "pubsub03" {
-  id = "subnet-046adbd371bc653c9"
+  id = "subnet-03e757a29a14c15a2"
 }
 data "aws_subnet" "prvtsub01" {
-  id = "subnet-0a99ffcd80fc5048b"
+  id = "subnet-08ff3023bd0fece12"
 }
 data "aws_subnet" "prvtsub02" {
-  id = "subnet-04379d6595d47642f"
+  id = "subnet-004269e785eeb847a"
 }
 data "aws_subnet" "prvtsub03" {
-  id = "subnet-0364f272f0e6ce938"
+  id = "subnet-0e94077d28bf7a218"
 }
 data "aws_security_group" "k8s-sg" {
-  id = "sg-07d6c8f6b67ae2ca6"
+  id = "sg-01ac4633d54f339bb"
 }
 data "aws_acm_certificate" "amazon_issued" {
   domain      = "henrykingroyal.co"
@@ -138,7 +138,7 @@ module "prod-lb" {
   prod_cert_acm    = data.aws_acm_certificate.amazon_issued.arn
   instance         = module.worker-node.workernode-id
   route53_zone_id  = data.aws_route53_zone.route53_zone.zone_id
-  prod_domain_name = "production.henrykingroyal.co"
+  prod_domain_name = "prod.henrykingroyal.co"
 }
 
 module "stage-lb" {
