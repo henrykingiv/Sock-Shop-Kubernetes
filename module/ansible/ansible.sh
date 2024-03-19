@@ -5,7 +5,7 @@ sudo dnf install -y ansible-core
 sudo yum install python-pip -y
 sudo yum install wget -y
 sudo yum install unzip -y
-sudo bash -c ' echo "StrictHostingKeyChecking No" >> /etc/ssh/ssh_config'
+#sudo bash -c 'echo "StrictHostingKeyChecking No" >> /etc/ssh/ssh_config'
 
 echo "${key}" > /home/ec2-user/.ssh/id_rsa
 sudo chmod 400 /home/ec2-user/.ssh/id_rsa

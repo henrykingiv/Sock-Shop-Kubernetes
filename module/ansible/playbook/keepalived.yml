@@ -1,4 +1,4 @@
-- hosts: haproxy1
+  - hosts: haproxy1
     become: true
     vars_files:
       - /home/ec2-user/ha-ip.yml
