@@ -1,11 +1,11 @@
   - hosts: haproxy1
     become: true
     vars_files:
-      - /home/ec2-user/ha-ip.yml
+      - /home/ubuntu/ha-ip.yml
 
     tasks:
       - name: Installation of keepalived
-        shell: sudo yum install keepalived -y
+        shell: sudo apt install keepalived -y
 
       - name: Configure keepalived
         shell: |
@@ -36,11 +36,11 @@
   - hosts: haproxy2
     become: true
     vars_files:
-      - /home/ec2-user/ha-ip.yml
+      - /home/ubuntu/ha-ip.yml
 
     tasks:
       - name: Installation of keepalived
-        shell: sudo yum install keepalived -y
+        shell: sudo apt install keepalived -y
 
       - name: Configure keepalived
         shell: |

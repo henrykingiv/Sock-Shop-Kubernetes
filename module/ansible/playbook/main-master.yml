@@ -1,7 +1,7 @@
 - hosts: main-master
   become: true
   vars_files: 
-    - /home/ec2-user/ha-ip.yml
+    - /home/ubuntu/ha-ip.yml
 
   tasks:
     
@@ -14,10 +14,10 @@
     
     - name: make directory and copy required file to it
       shell: |
-        sudo su -c 'mkdir -p $HOME/.kube' ec2-user
-        sudo su -c 'sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config' ec2-user
-        sudo su -c 'sudo chown $(id -u):$(id -g) $HOME/.kube/config' ec2-user
+        sudo su -c 'mkdir -p $HOME/.kube' ubuntu
+        sudo su -c 'sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config' ubuntu
+        sudo su -c 'sudo chown $(id -u):$(id -g) $HOME/.kube/config' ubuntu
     
     - name: Fetch the config file from the main-master to ansible host
       run_once: true
-      fetch: src=/home/ec2-user/.kube/config dest=/home/ec2-user/ flat=yes
+      fetch: src=/home/ubuntu/.kube/config dest=/home/ubuntu/ flat=yes

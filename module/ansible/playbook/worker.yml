@@ -9,7 +9,7 @@
   tasks:
 
      - name: Generated token - 1.
-       local_action: shell sed -n 82,83p /tmp/token > /tmp/workertoken
+       local_action: shell sed -n 83,84p /tmp/token > /tmp/workertoken
       
      - name: Copy Worker token
        copy:
@@ -26,10 +26,10 @@
        command: sudo sh /tmp/join-worker-command
    
      - name: Copy the file from ansible host to worker nodes
-       copy: src=/home/ec2-user/config dest=/home/ec2-user
+       copy: src=/home/ubuntu/config dest=/home/ubuntu
 
      - name: make directory and copy required file to it
        shell: |
-        sudo su -c 'mkdir -p $HOME/.kube' ec2-user
-        sudo su -c 'mv /home/ec2-user/config /home/ec2-user/.kube' ec2-user
-        sudo su -c 'sudo chown $(id -u):$(id -g) $HOME/.kube/config' ec2-user
+        sudo su -c 'mkdir -p $HOME/.kube' ubuntu
+        sudo su -c 'mv /home/ubuntu/config /home/ubuntu/.kube' ubuntu
+        sudo su -c 'sudo chown $(id -u):$(id -g) $HOME/.kube/config' ubuntu

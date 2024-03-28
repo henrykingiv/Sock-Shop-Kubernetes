@@ -25,15 +25,15 @@ resource "null_resource" "copy-playbook" {
   connection {
     type = "ssh"
     host = aws_instance.ansible.private_ip
-    user = "ec2-user"
+    user = "ubuntu"
     private_key = var.private_key
     bastion_host = var.bastion_host
-    bastion_user = "ec2-user"
+    bastion_user = "ubuntu"
     bastion_private_key = var.private_key
   }
   provisioner "file" {
     source = "./module/ansible/playbook"
-    destination = "/home/ec2-user/playbook"
+    destination = "/home/ubuntu/playbook"
   }
 }
 

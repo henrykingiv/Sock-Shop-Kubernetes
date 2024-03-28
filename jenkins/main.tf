@@ -32,29 +32,31 @@ resource "aws_key_pair" "public-key" {
   public_key = tls_private_key.keypair.public_key_openssh
 }
 
-#Create Security Group and Rules for Kub8
+#Create Security group and Rules
 resource "aws_security_group" "kub8-sg" {
-  name        = "kub8-sg"
-  description = "Allow inbound traffic"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress {
-    description = "Allow ssh access"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  vpc_id = module.vpc.vpc_id
   tags = {
-    Name = "${local.name}-kub8-sg"
+    Name = "${local.name}-k8s-sg"
   }
+
+}
+
+resource "aws_security_group_rule" "allow-ingress" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.kub8-sg.id
+}
+
+resource "aws_security_group_rule" "allow-egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.kub8-sg.id
 }
 
 #create Security Group for Jenkins
@@ -169,13 +171,25 @@ resource "aws_lb" "jenkins-lb" {
   }
 }
 
+# resource "null_resource" "credentials" {
+#   depends_on = [ aws_instance.jenkins-server ]
+#   provisioner "local-exec" {
+#     command = <<-EOT
+#       ids_output=$(terraform output)
+#       printf '%s\n' "$ids_output" | awk '{print "  " $0}' | sed '3r /dev/stdin' ../main.tf > tmpfile && mv tmpfile ../main.tf
+#     EOT
+
+#   }
+# }
+
+
 #Create LB Listener for HTTPS
 resource "aws_lb_listener" "lbl-https" {
   load_balancer_arn = aws_lb.jenkins-lb.arn
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = "${aws_acm_certificate.kub8-cert.arn}"
+  certificate_arn   = aws_acm_certificate.kub8-cert.arn
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.jenkinslb-tg.arn
@@ -260,3 +274,22 @@ resource "aws_acm_certificate_validation" "sign_cert" {
   certificate_arn         = aws_acm_certificate.kub8-cert.arn
   validation_record_fqdns = [for record in aws_route53_record.kub8-project : record.fqdn]
 }
+
+resource "null_resource" "credentials" {
+  depends_on = [null_resource.all_other_resources]
+
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      # Get the private subnet IDs from the vpc module output
+      output_ids=$(terraform output)
+
+      # Add the private subnet IDs to the main.tf file
+      printf '%s\n' "$output_ids" | awk '{print "  " $0}' | sed '3r /dev/stdin' ../main.tf > tmpfile && mv tmpfile ../main.tf
+      
+    EOT
+    interpreter = ["bash", "-c"]
+  }
+}
+
+resource "null_resource" "all_other_resources"{}

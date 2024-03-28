@@ -1,5 +1,5 @@
 variable "ami" {
-  default = "ami-08e592fbb0f535224"
+  default = "ami-0c1c30571d2dae5c9"
 }
 variable "domain_name" {
   default = "henrykingroyal.co"

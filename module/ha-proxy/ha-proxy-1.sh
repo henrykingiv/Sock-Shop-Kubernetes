@@ -1,10 +1,10 @@
 #!/bin/bash
 sudo -i
-yum-get update -y
-yum-get upgrade -y
-yum install --no-install-recommends software-properties-common
-add-yum-repository ppa:vbernat/haproxy-2.4 -y
-yum install haproxy=2.4.\* -y 
+apt-get update -y
+apt-get upgrade -y
+apt install --no-install-recommends software-properties-common
+add-apt-repository ppa:vbernat/haproxy-2.4 -y
+apt install haproxy=2.4.\* -y 
 sudo bash -c 'echo "
 frontend fe-apiserver
 bind 0.0.0.0:6443
