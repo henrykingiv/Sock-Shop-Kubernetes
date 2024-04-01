@@ -1,15 +1,15 @@
 locals {
   name = "sock-shop-henry"
 
-  jenkins = "54.171.74.123"
-  kub8 = "sg-0fb0a5287a6280ea4"
-  private_subnets1 = "subnet-032e96dfe6d4d5491"
-  private_subnets2 = "subnet-09f3e2dac87fe8974"
-  private_subnets3 = "subnet-0994c0558d8235874"
-  public_subnets1 = "subnet-0c03f7d0917c549d2"
-  public_subnets2 = "subnet-057171cc8791935d1"
-  public_subnets3 = "subnet-06adbfe2ac04fe2b4"
-  vpc_id = "vpc-09b085669a9579a83"
+  jenkins = "18.201.238.58"
+  kub8 = "sg-09d2923afc892e639"
+  private_subnets1 = "subnet-03baa575a419552a2"
+  private_subnets2 = "subnet-0cf64e9b3d026a70b"
+  private_subnets3 = "subnet-0955661edfa457ffc"
+  public_subnets1 = "subnet-0eac3b6e4d124834d"
+  public_subnets2 = "subnet-0465063dd50f390e3"
+  public_subnets3 = "subnet-047acf4dbc78c27d3"
+  vpc_id = "vpc-09f948b10a99809fc"
 }
 data "aws_vpc" "vpc" {
   id = local.vpc_id
