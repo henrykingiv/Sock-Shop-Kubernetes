@@ -1,29 +1,39 @@
 locals {
   name = "sock-shop-henry"
+
+  jenkins = "18.201.238.58"
+  kub8 = "sg-09d2923afc892e639"
+  private_subnets1 = "subnet-03baa575a419552a2"
+  private_subnets2 = "subnet-0cf64e9b3d026a70b"
+  private_subnets3 = "subnet-0955661edfa457ffc"
+  public_subnets1 = "subnet-0eac3b6e4d124834d"
+  public_subnets2 = "subnet-0465063dd50f390e3"
+  public_subnets3 = "subnet-047acf4dbc78c27d3"
+  vpc_id = "vpc-09f948b10a99809fc"
 }
 data "aws_vpc" "vpc" {
-  id = "vpc-0902bfb4a82802be2"
+  id = local.vpc_id
 }
 data "aws_subnet" "pubsub01" {
-  id = "subnet-0d8048a57e3a271fc"
+  id = local.public_subnets1
 }
 data "aws_subnet" "pubsub02" {
-  id = "subnet-07bb00e6508c4d685"
+  id = local.public_subnets2
 }
 data "aws_subnet" "pubsub03" {
-  id = "subnet-03e757a29a14c15a2"
+  id = local.public_subnets3
 }
 data "aws_subnet" "prvtsub01" {
-  id = "subnet-08ff3023bd0fece12"
+  id = local.private_subnets1
 }
 data "aws_subnet" "prvtsub02" {
-  id = "subnet-004269e785eeb847a"
+  id = local.private_subnets2
 }
 data "aws_subnet" "prvtsub03" {
-  id = "subnet-0e94077d28bf7a218"
+  id = local.private_subnets3
 }
 data "aws_security_group" "k8s-sg" {
-  id = "sg-01ac4633d54f339bb"
+  id = local.kub8
 }
 data "aws_acm_certificate" "amazon_issued" {
   domain      = "henrykingroyal.co"
@@ -41,7 +51,7 @@ module "keypair" {
 
 module "ha-proxy" {
   source        = "./module/ha-proxy"
-  ami           = "ami-08e592fbb0f535224"
+  ami           = "ami-0c1c30571d2dae5c9"
   ha-proxy-sg   = data.aws_security_group.k8s-sg.id
   instance_type = "t3.medium"
   keyname       = module.keypair.public-key
@@ -56,7 +66,7 @@ module "ha-proxy" {
 
 module "ansible" {
   source         = "./module/ansible"
-  ami            = "ami-08e592fbb0f535224"
+  ami            = "ami-0c1c30571d2dae5c9"
   ansible-sg     = data.aws_security_group.k8s-sg.id
   instance_type  = "t2.micro"
   keyname        = module.keypair.public-key
@@ -78,7 +88,7 @@ module "ansible" {
 
 module "bastion-host" {
   source         = "./module/bastion-host"
-  ami            = "ami-08e592fbb0f535224"
+  ami            = "ami-0c1c30571d2dae5c9"
   instance_type  = "t2.micro"
   keyname        = module.keypair.public-key
   subnet-id      = data.aws_subnet.pubsub01.id
@@ -90,7 +100,7 @@ module "bastion-host" {
 
 module "master-node" {
   source         = "./module/master-node"
-  ami            = "ami-08e592fbb0f535224"
+  ami            = "ami-0c1c30571d2dae5c9"
   security-group = data.aws_security_group.k8s-sg.id
   instance_type  = "t3.medium"
   keyname        = module.keypair.public-key
@@ -100,7 +110,7 @@ module "master-node" {
 
 module "worker-node" {
   source         = "./module/worker-node"
-  ami            = "ami-08e592fbb0f535224"
+  ami            = "ami-0c1c30571d2dae5c9"
   security-group = data.aws_security_group.k8s-sg.id
   instance_type  = "t3.medium"
   keyname        = module.keypair.public-key

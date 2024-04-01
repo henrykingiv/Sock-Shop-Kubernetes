@@ -4,7 +4,7 @@
   tasks:
 
     - name: Generated token to join master.
-      local_action: shell sed -n 72,74p /tmp/token > /tmp/mastertoken
+      local_action: shell sed -n 73,75p /tmp/token > /tmp/mastertoken
     
     - name: Copy master token
       copy:
@@ -22,6 +22,7 @@
     
     - name: make directory and copy required file to it
       shell: |
-        sudo su -c 'mkdir -p $HOME/.kube' ec2-user
-        sudo su -c 'sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config' ec2-user
-        sudo su -c 'sudo chown $(id -u):$(id -g) $HOME/.kube/config' ec2-user
+        sudo su -c 'mkdir -p $HOME/.kube' ubuntu
+        sudo su -c 'sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config' ubuntu
+        sudo su -c 'sudo chown $(id -u):$(id -g) $HOME/.kube/config' ubuntu
+

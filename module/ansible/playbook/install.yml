@@ -1,7 +1,7 @@
 ---
   - name: Install k8s dependencies on master and worker nodes.
     hosts: main-master, member-master, worker
-    remote_user: ec2-user
+    remote_user: ubuntu
     become: true
     become_method : sudo
     become_user: root
@@ -9,21 +9,21 @@
     connection: ssh
 
     tasks:
-     - name : update and upgrade ec2-user environment
+     - name : update and upgrade ubuntu environment
        shell: |
-                sudo yum update
+                sudo apt update
 
-     - name : Add k8s repo to ec2-user
+     - name : Add k8s repo to ubuntu
        shell: |
-                sudo yum -y install curl yum-transport-https
-                curl -s https://packages.cloud.google.com/yum/doc/yum-key.gpg | sudo yum-key add -
-                echo "deb https://yum.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/yum/sources.list.d/kubernetes.list
+                sudo apt -y install curl apt-transport-https
+                curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+                echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
      - name: Install required packages before installing kubelet, kubectl and kubeadm
        shell: |
-                sudo yum update
-                sudo yum -y install vim git curl wget kubelet kubeadm kubectl
-                sudo yum-mark hold kubelet kubeadm kubectl
+                sudo apt update
+                sudo apt -y install vim git curl wget kubelet kubeadm kubectl
+                sudo apt-mark hold kubelet kubeadm kubectl
 
      - name : Disable swap and confirm that the setting is correct
        shell: |
@@ -49,12 +49,12 @@
 
      - name : Install docker container runtime
        shell: |
-                sudo yum update -y
-                sudo yum install -y curl gnupg2 software-properties-common yum-transport-https ca-certificates
-                curl -fsSL https://download.docker.com/linux/ec2-user/gpg | sudo yum-key add -
-                sudo add-yum-repository "deb [arch=amd64] https://download.docker.com/linux/ec2-user $(lsb_release -cs) stable" -y
-                sudo yum update -y
-                sudo yum install -y containerd.io docker-ce docker-ce-cli
+                sudo apt update
+                sudo apt install -y curl gnupg2 software-properties-common apt-transport-https ca-certificates
+                curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+                sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" -y
+                sudo apt update
+                sudo apt install -y containerd.io docker-ce docker-ce-cli
 
      - name: Create directory
        shell: sudo mkdir -p /etc/systemd/system/docker.service.d
@@ -79,8 +79,8 @@
 
      - name: Install required packages before downloading cri-dockerd
        shell: |
-                sudo yum update -y
-                sudo yum install git wget curl
+                sudo apt update
+                sudo apt install git wget curl
 
      - name: downlaod the latest binary package of cri-dockerd
        shell: |
